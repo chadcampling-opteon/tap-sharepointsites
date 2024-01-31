@@ -33,11 +33,14 @@ plugins:
     - name: files
       label: Sharepoint Lists
       documentation: An array of files to extract.
-      placeholder: '[{"name": "my-file-1", "file_pattern": ".*\.csv", "file_type": "csv", "folder": "my-folder"}]'
+      placeholder: '[{"name": "my-file-1", "file_pattern": ".*\.csv", "file_type": "csv", "folder": "my-folder", "sheet_name":"my-sheet", "min_row":1, "max_row":11, "min_col":1, "max_col":11}]'
     - name: client_id
       label: Managed Identity Client ID
       value: null
       documentation: Managed Identity Client ID, when authenticating with a user-assigned managed identity.
+    - name: access_token
+      label: Microsoft Graph Access Token
+      value: null
   loaders:
   - name: target-jsonl
     variant: andyh1203

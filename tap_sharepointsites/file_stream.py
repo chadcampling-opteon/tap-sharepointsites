@@ -41,17 +41,10 @@ class FilesStream(sharepointsitesStream):
         return url
 
     def _get_headers(self):
-        ad_scope = "https://graph.microsoft.com/.default"
-
-        if self.config.get("client_id"):
-            creds = ManagedIdentityCredential(client_id=self.config["client_id"])
-        else:
-            creds = DefaultAzureCredential()
-
-        token = creds.get_token(ad_scope)
+        token = self.config.get("access_token")
 
         headers = {
-            "Authorization": f"Bearer {token.token}",
+            "Authorization": f"Bearer {token}",
         }
 
         return headers
@@ -121,7 +114,14 @@ class FilesStream(sharepointsitesStream):
 
                 elif self.file_config["file_type"] == "excel":
                     file = self.get_file_for_row(record, text=False)
-                    dr = ExcelHandler(file).get_row_iterator()
+                    sheet_name = self.file_config.get("sheet_name", "Sheet1")
+                    min_row = self.file_config.get("min_row", None)
+                    max_row = self.file_config.get("max_row", None)
+                    min_col = self.file_config.get("min_col", None)
+                    max_col = self.file_config.get("max_col", None)
+                    dr = ExcelHandler(
+                        file, sheet_name, min_row, max_row, min_col, max_col
+                    ).get_row_iterator()
                 else:
                     filetype_name = self.file_config.get("file_type", "unknown")
                     raise Exception(f"File type { filetype_name } not supported (yet)")
@@ -158,7 +158,14 @@ class FilesStream(sharepointsitesStream):
 
                 elif self.file_config["file_type"] == "excel":
                     file = self.get_file_for_row(file, text=False)
-                    dr = ExcelHandler(file)
+                    sheet_name = self.file_config.get("sheet_name", "Sheet1")
+                    min_row = self.file_config.get("min_row", None)
+                    max_row = self.file_config.get("max_row", None)
+                    min_col = self.file_config.get("min_col", None)
+                    max_col = self.file_config.get("max_col", None)
+                    dr = ExcelHandler(
+                        file, sheet_name, min_row, max_row, min_col, max_col
+                    )
 
                 properties = {}
 

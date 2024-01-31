@@ -42,6 +42,11 @@ The file configuration accepts an array of objects, with keys:
 - `file_type`: Type (format) of file to load, either `csv` or `excel`.
 - `delimiter`: Field delimiter for CSV files. default `,`
 - `clean_colnames`: Whether to convert column names to snake_case. default `false`
+- `sheet_name`: Sheet name to pull from. default: `Sheet1`
+- `min_row`: starting row in sheet. optional
+- `max_row`: last row in sheet. optional
+- `min_col`: starting column in sheet. optional
+- `max_col`: last column in sheet. optional
 
 Example config:
 
@@ -55,6 +60,11 @@ Example config:
       folder: hr_data/raw
       file_type: csv
       clean_colnames: true
+      sheet_name: Sheet1
+      min_row: 1
+      max_row: 10
+      min_col: 1
+      max_col: 10
   ...
 ```
 

@@ -26,18 +26,9 @@ class PagesStream(sharepointsitesStream):
         super().__init__(*args, **kwargs)
 
     def _get_headers(self):
-        """Get adhoc headers for request."""
-        ad_scope = "https://graph.microsoft.com/.default"
-
-        if self.config.get("client_id"):
-            creds = ManagedIdentityCredential(client_id=self.config["client_id"])
-        else:
-            creds = DefaultAzureCredential()
-
-        token = creds.get_token(ad_scope)
-
+        token = self.config.get("access_token")
         headers = {
-            "Authorization": f"Bearer {token.token}",
+            "Authorization": f"Bearer {token}",
         }
 
         return headers

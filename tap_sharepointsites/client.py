@@ -33,15 +33,8 @@ class sharepointsitesStream(RESTStream):
     @property
     def authenticator(self) -> BearerTokenAuthenticator:
         """Return a new authenticator object."""
-        ad_scope = "https://graph.microsoft.com/.default"
-        if self.config.get("client_id"):
-            creds = ManagedIdentityCredential(client_id=self.config["client_id"])
-            token = creds.get_token(ad_scope)
-        else:
-            creds = DefaultAzureCredential()
-            token = creds.get_token(ad_scope)
-
-        return BearerTokenAuthenticator.create_for_stream(self, token=token.token)
+        token = self.config.get("access_token")
+        return BearerTokenAuthenticator.create_for_stream(self, token=token)
 
     @property
     def http_headers(self) -> dict:
