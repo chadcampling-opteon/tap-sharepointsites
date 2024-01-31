@@ -11,20 +11,25 @@ LOGGER = logging.getLogger(__name__)
 class ExcelHandler:
     """Handle Excel files."""
 
-    def __init__(self, textcontent):
+    def __init__(self, textcontent, sheet_name, min_row, max_row, min_col, max_col):
         """Initialize ExcelHandler."""
-        self.xlsheet = self._load_workbook(textcontent)
+        self.xlsheet = self._load_workbook(
+            textcontent, sheet_name, min_row, max_row, min_col, max_col
+        )
 
-    def _load_workbook(self, textcontent):
+    def _load_workbook(
+        self, textcontent, sheet_name, min_row, max_row, min_col, max_col
+    ):
         """Load workbook from textcontent."""
+
         with tempfile.NamedTemporaryFile(mode="wb", suffix=".xlsx") as temp:
             temp.write(textcontent)
             temp.flush()
-            workbook = openpyxl.load_workbook(temp.name, read_only=True)
-            worksheets = workbook.worksheets
-            active_sheet = worksheets[0]
-            return active_sheet
-            # self.xlsheet = active_sheet
+            workbook = openpyxl.load_workbook(temp.name, read_only=True, data_only=True)
+            active_sheet = workbook[sheet_name].iter_rows(
+                min_row=min_row, max_row=max_row, min_col=min_col, max_col=max_col
+            )
+            return list(active_sheet)
 
     def get_row_iterator(self):
         """Return a generator of rows."""
@@ -33,7 +38,13 @@ class ExcelHandler:
     @property
     def fieldnames(self):
         """Return fieldnames."""
-        return [c.value for c in self.xlsheet[1]]
+        fieldnames = []
+        for index, cell in enumerate(self.xlsheet[0]):
+            name = cell.value
+            if not name:
+                name = "untitled_" + str(index)
+            fieldnames.append(name)
+        return fieldnames
 
     def generator_wrapper(self, reader):
         """Wrap a reader in a generator."""
@@ -46,14 +57,14 @@ class ExcelHandler:
 
             for index, cell in enumerate(row):
                 header_cell = header_row[index]
-
                 formatted_key = header_cell.value
 
                 if not formatted_key:
-                    formatted_key = ""  # default to empty string for key
+                    # rename empty headers to untitled
+                    formatted_key = "untitled_" + str(index)
 
                 to_return[formatted_key] = (
-                    str(cell.value) if cell.value is not None else ""
+                    str(cell.value) if cell.value is not None else None
                 )
 
             yield to_return
