@@ -56,9 +56,9 @@ Example config:
     ...
     files:
     - name: employees
-      file_pattern: employees_.*\.csv
+      file_pattern: employees_.*\.xlsx
       folder: hr_data/raw
-      file_type: csv
+      file_type: excel
       clean_colnames: true
       sheet_name: Sheet1
       min_row: 1
