@@ -25,7 +25,7 @@ plugins:
     - name: api_url
       label: Site URL
       documentation: API URL of the sharepoint site where your lists are located.
-      placeholder: Ex. https://graph.microsoft.com/v1.0/sites/my-tenant.com:/sites/my-site:/
+      placeholder: Ex. https://graph.microsoft.com/v1.0/sites/my-tenant.com:/sites/my-site:/ or https://graph.microsoft.com/v1.0/me/ for personal sites
     - name: lists
       label: Sharepoint Lists
       documentation: An array of lists to extract, each an object with `name` as a key.
