@@ -128,7 +128,7 @@ class FilesStream(sharepointsitesStream):
 
                 for i, row in enumerate(dr):
 
-                    if self.file_config.get("clean_colnames", False):
+                    if self.file_config.get("clean_colnames", True):
                         row = {snakecase(k): v for k, v in row.items()}
 
                     row.update(
@@ -171,7 +171,7 @@ class FilesStream(sharepointsitesStream):
 
                 fieldnames = [name for name in dr.fieldnames]
 
-                if self.file_config.get("clean_colnames", False):
+                if self.file_config.get("clean_colnames", True):
                     fieldnames = [snakecase(name) for name in fieldnames]
 
                 extra_cols = [

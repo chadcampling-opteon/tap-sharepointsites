@@ -1,5 +1,5 @@
 """sharepointsites tap class."""
-
+import json
 from typing import List
 
 from singer_sdk import Stream, Tap
@@ -32,43 +32,9 @@ class Tapsharepointsites(Tap):
         ),
         th.Property(
             "files",
-            th.ArrayType(
-                th.ObjectType(
-                    th.Property(
-                        "name",
-                        th.StringType,
-                        required=True,
-                        description="The name of the stream",
-                    ),
-                    th.Property(
-                        "file_pattern",
-                        th.StringType,
-                        required=True,
-                        description="The file pattern to match",
-                    ),
-                    th.Property(
-                        "file_type",
-                        th.StringType,
-                        required=True,
-                        description="The file type to match",
-                    ),
-                    th.Property(
-                        "delimiter",
-                        th.StringType,
-                        required=False,
-                        description="For CSV files: the delimiter to use",
-                    ),
-                    th.Property(
-                        "clean_colnames",
-                        th.BooleanType,
-                        required=False,
-                        default=False,
-                        description="Replace special characters and convert to snakecase",
-                    ),
-                ),
-            ),
+            th.StringType,
             required=False,
-            description="Files to sync",
+            description="Json string of files to sync",
         ),
         th.Property(
             "textfiles",
@@ -126,13 +92,14 @@ class Tapsharepointsites(Tap):
             list_streams = []
 
         if self.config.get("files"):
+            files = json.loads(self.config.get("files"))
             files_streams = [
                 FilesStream(
                     tap=self,
                     name=file["name"],
                     file_config=file,
                 )
-                for file in self.config["files"]
+                for file in files
             ]
         else:
             files_streams = []
