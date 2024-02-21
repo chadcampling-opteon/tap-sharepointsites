@@ -19,7 +19,7 @@ class FilesStream(sharepointsitesStream):
     """Define custom stream."""
 
     records_jsonpath = "$.value[*]"
-    replication_key = "lastModifiedDateTime"
+    # replication_key = "lastModifiedDateTime" ## This is not a good replication key, MS Graph API does not always update it, run a full refresh every time
     primary_keys = ["_sdc_source_file", "_sdc_row_num"]
 
     # schema_filepath = SCHEMAS_DIR / "files.json"
