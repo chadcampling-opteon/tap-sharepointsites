@@ -1,6 +1,7 @@
 """Handle Excel files."""
 
 import logging
+import os
 import tempfile
 
 import openpyxl
@@ -22,7 +23,8 @@ class ExcelHandler:
     ):
         """Load workbook from textcontent."""
 
-        with tempfile.NamedTemporaryFile(mode="wb", suffix=".xlsx") as temp:
+        is_windows = os.name == 'nt'
+        with tempfile.NamedTemporaryFile(mode="wb", suffix=".xlsx", delete=not is_windows) as temp:
             temp.write(textcontent)
             temp.flush()
             workbook = openpyxl.load_workbook(temp.name, read_only=True, data_only=True)

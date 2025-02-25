@@ -179,6 +179,7 @@ def test_sync_excel_file_2(
             row["record"]["last_name"]
             for row in records
             if row["record"]["last_name"] != ""
+            and row["record"]["last_name"] is not None
         ]
     else:
         first_names = [row["record"]["First Name"] for row in records]
@@ -200,7 +201,7 @@ def test_sync_excel_file_2(
 
 
 def test_basic_read():
-    with open("tap_sharepointsites/tests/configuration/sample.csv", "r") as file:
+    with open("tap_sharepointsites/tests/configuration/sample.csv", "r", encoding="utf-8") as file:
         data = file.read()
 
     assert "Langstrømpe" in data

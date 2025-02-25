@@ -1,6 +1,7 @@
 """Stream type classes for tap-sharepointsites."""
 
 import datetime
+import os
 import re
 import tempfile
 import typing as t
@@ -113,8 +114,9 @@ class TextStream(sharepointsitesStream):
 
                 file = self.get_file_for_row(record, text=False)
 
-                with tempfile.NamedTemporaryFile(suffix=record["name"]) as tmpfile:
+                with tempfile.NamedTemporaryFile(suffix=record["name"], delete=False) as tmpfile:
                     tmpfile.write(file)
+                    tmpfile.flush()
                     tmpfile.seek(0)
                     text = textract.process(tmpfile.name)
 
@@ -125,6 +127,11 @@ class TextStream(sharepointsitesStream):
                     "_sdc_loaded_at": str(datetime.datetime.utcnow()),
                     "lastModifiedDateTime": record["lastModifiedDateTime"],
                 }
+
+                try:
+                    os.remove(tmpfile.name)
+                except Exception as e:
+                    print(f"Error cleaning up temporary file: {e}")
 
                 yield row
 
