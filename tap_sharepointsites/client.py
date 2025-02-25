@@ -73,5 +73,5 @@ class sharepointsitesStream(RESTStream):
 
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
         """As needed, append or transform raw data to match expected structure."""
-        row["_loaded_at"] = datetime.utcnow()
+        row["_sdc_loaded_at"] = datetime.utcnow()
         return row

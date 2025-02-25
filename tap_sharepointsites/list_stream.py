@@ -44,5 +44,5 @@ class ListStream(sharepointsitesStream):
         Property("contentType", ObjectType()),
         Property("fields@odata.context", StringType),
         Property("fields", ObjectType()),
-        Property("_loaded_at", DateTimeType),
+        Property("_sdc_loaded_at", DateTimeType),
     ).to_dict()

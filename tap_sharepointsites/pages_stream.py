@@ -7,7 +7,7 @@ import requests
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from selectolax.parser import HTMLParser
 from singer_sdk import metrics
-from singer_sdk.typing import IntegerType, PropertiesList, Property, StringType
+from singer_sdk.typing import IntegerType, PropertiesList, Property, StringType, DateTimeType
 
 from tap_sharepointsites.client import sharepointsitesStream
 
@@ -87,8 +87,8 @@ class PagesStream(sharepointsitesStream):
             Property("id", StringType),
             Property("lastModifiedDateTime", StringType),
             Property("_sdc_source_id", StringType),
-            Property("_sdc_loaded_at", StringType()),
-            Property("_sdc_chunk_num", IntegerType()),
+            Property("_sdc_loaded_at", DateTimeType),
+            Property("_sdc_chunk_num", IntegerType),
         ).to_dict()
         return schema
 

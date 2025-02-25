@@ -90,7 +90,7 @@ sample_catalog = """
                 "null"
               ]
             },
-            "_loaded_at": {
+            "_sdc_loaded_at": {
               "format": "date-time",
               "type": [
                 "string",
@@ -213,7 +213,7 @@ sample_catalog = """
           {
             "breadcrumb": [
               "properties",
-              "_loaded_at"
+              "_sdc_loaded_at"
             ],
             "metadata": {
               "inclusion": "available"
