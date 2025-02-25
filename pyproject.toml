@@ -15,7 +15,8 @@ requests = "^2.25.1"
 singer-sdk = "^0.29.0"
 azure-identity = "^1.11"
 openpyxl = "^3.0.7"
-textract = {git = "https://github.com/steven-luabase/textract.git", rev = "extract-msg-version"}
+textract-py3 = "^2.1.0"
+xlrd = "<2.0.0" # 2.0.0 doesn't support xlsx
 selectolax = "0.3.17"
 
 
