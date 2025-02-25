@@ -41,10 +41,17 @@ class FilesStream(sharepointsitesStream):
         return url
 
     def _get_headers(self):
-        token = self.config.get("access_token")
+        ad_scope = "https://graph.microsoft.com/.default"
+
+        if self.config.get("client_id"):
+            creds = ManagedIdentityCredential(client_id=self.config["client_id"])
+        else:
+            creds = DefaultAzureCredential()
+
+        token = creds.get_token(ad_scope)
 
         headers = {
-            "Authorization": f"Bearer {token}",
+            "Authorization": f"Bearer {token.token}",
         }
 
         return headers

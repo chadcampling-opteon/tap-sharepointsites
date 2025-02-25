@@ -32,7 +32,71 @@ class Tapsharepointsites(Tap):
         ),
         th.Property(
             "files",
-            th.StringType,
+            th.ArrayType(
+                th.ObjectType(
+                    th.Property(
+                        "name",
+                        th.StringType,
+                        required=True,
+                        description="The name of the stream",
+                    ),
+                    th.Property(
+                        "file_pattern",
+                        th.StringType,
+                        required=True,
+                        description="The file pattern to match",
+                    ),
+                    th.Property(
+                        "file_type",
+                        th.StringType,
+                        required=True,
+                        description="The file type to match",
+                    ),
+                    th.Property(
+                        "delimiter",
+                        th.StringType,
+                        required=False,
+                        description="For CSV files: the delimiter to use",
+                    ),
+                    th.Property(
+                        "clean_colnames",
+                        th.BooleanType,
+                        required=False,
+                        default=False,
+                        description="Replace special characters and convert to snakecase",
+                    ),
+                    th.Property(
+                        "sheet_name",
+                        th.StringType,
+                        required=False,
+                        description="Name of the excel sheet to load from",
+                    ),
+                    th.Property(
+                        "min_row",
+                        th.IntegerType,
+                        required=False,
+                        description="Replace special characters and convert to snakecase",
+                    ),
+                    th.Property(
+                        "max_row",
+                        th.IntegerType,
+                        required=False,
+                        description="Replace special characters and convert to snakecase",
+                    ),
+                    th.Property(
+                        "min_col",
+                        th.IntegerType,
+                        required=False,
+                        description="Replace special characters and convert to snakecase",
+                    ),
+                    th.Property(
+                        "max_col",
+                        th.IntegerType,
+                        required=False,
+                        description="Replace special characters and convert to snakecase",
+                    ),
+                ),
+            ),
             required=False,
             description="Json string of files to sync",
         ),
@@ -92,14 +156,13 @@ class Tapsharepointsites(Tap):
             list_streams = []
 
         if self.config.get("files"):
-            files = json.loads(self.config.get("files"))
             files_streams = [
                 FilesStream(
                     tap=self,
                     name=file["name"],
                     file_config=file,
                 )
-                for file in files
+                for file in self.config["files"]
             ]
         else:
             files_streams = []

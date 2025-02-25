@@ -38,9 +38,6 @@ plugins:
       label: Managed Identity Client ID
       value: null
       documentation: Managed Identity Client ID, when authenticating with a user-assigned managed identity.
-    - name: access_token
-      label: Microsoft Graph Access Token
-      value: null
   loaders:
   - name: target-jsonl
     variant: andyh1203
