@@ -57,6 +57,11 @@ class ExcelHandler:
                 header_row = row
                 continue
 
+            # Check if all cells in the row are empty
+            # For some reason openpyxl is importing extra rows that are all empty
+            if all(cell.value is None for cell in row):
+                continue  # Skip this row as it's completely empty
+
             for index, cell in enumerate(row):
                 header_cell = header_row[index]
                 formatted_key = header_cell.value
