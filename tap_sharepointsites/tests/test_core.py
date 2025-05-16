@@ -4,7 +4,7 @@ import json
 from unittest import mock
 
 import pytest
-
+from singer_sdk.testing import get_tap_test_class
 from tap_sharepointsites.list_stream import ListStream
 from tap_sharepointsites.tap import Tapsharepointsites
 
@@ -14,11 +14,18 @@ SAMPLE_CONFIG = {
     "api_url": "https://graph.microsoft.com/v1.0/sites/example.sharepoint.com:/sites/demo:/",  # noqa
     "lists": ["list1", "list2"],
 }
+REAL_CONFIG = json.loads(open(".secrets/opteon-usa-config.json").read())  # noqa
 
 SAMPLE_CATALOG = json.loads(sample_catalog)
 list_response_paginated = json.loads(
     open("tap_sharepointsites/tests/configuration/list_response_paginated.json").read()
 )  # noqa
+
+# Run standard built-in tap tests from the SDK:
+TestTapsharepointsites = get_tap_test_class(
+    tap_class=Tapsharepointsites,
+    config=REAL_CONFIG,
+)
 
 
 def test_cli_prints() -> None:

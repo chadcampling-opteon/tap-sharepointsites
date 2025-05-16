@@ -4,7 +4,6 @@ import datetime
 import typing as t
 
 import requests
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from selectolax.parser import HTMLParser
 from singer_sdk import metrics
 from singer_sdk.typing import IntegerType, PropertiesList, Property, StringType, DateTimeType
@@ -21,26 +20,7 @@ class PagesStream(sharepointsitesStream):
 
     def __init__(self, *args, **kwargs):
         """Init Page Stream."""
-        self._header = None
-        # self.header = self._get_headers()
         super().__init__(*args, **kwargs)
-
-    def _get_headers(self):
-        """Get adhoc headers for request."""
-        ad_scope = "https://graph.microsoft.com/.default"
-
-        if self.config.get("client_id"):
-            creds = ManagedIdentityCredential(client_id=self.config["client_id"])
-        else:
-            creds = DefaultAzureCredential()
-
-        token = creds.get_token(ad_scope)
-
-        headers = {
-            "Authorization": f"Bearer {token.token}",
-        }
-
-        return headers
 
     name = "pages"
 
@@ -52,7 +32,7 @@ class PagesStream(sharepointsitesStream):
     @property
     def header(self):
         """Run header function."""
-        return self._get_headers()
+        return self.http_headers
 
     @property
     def path(self) -> str:
@@ -96,14 +76,14 @@ class PagesStream(sharepointsitesStream):
     def site_id(self):
         """Return ID of specified Sharepoint Site."""
         full_url = self.config.get("api_url")
-        response = requests.get(full_url, headers=self.header)
+        response = requests.get(full_url, headers=self.header, auth=self.authenticator)
         return response.json()["id"]
 
-    def parse_response(self, response: requests.Response, context) -> t.Iterable[dict]:
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
         """Parse the response and return an iterator of result records."""
         resp_values = response.json()["value"]
         files_since = (
-            self.get_starting_replication_key_value(context) or "1900-01-01T00:00:00Z"
+            self.get_starting_replication_key_value(self.context) or "1900-01-01T00:00:00Z"
         )
 
         for record in resp_values:
@@ -131,7 +111,7 @@ class PagesStream(sharepointsitesStream):
             f"{id}/microsoft.graph.sitepage/webparts"
         )
 
-        page_content = requests.get(base_url, headers=self.header)
+        page_content = requests.get(base_url, headers=self.header, auth=self.authenticator)
         page_content.raise_for_status()
 
         data = page_content.json()
@@ -147,38 +127,6 @@ class PagesStream(sharepointsitesStream):
 
         return parsed_htmls
 
-    def request_records(self, context) -> t.Iterable[dict]:
-        """Request records from REST endpoint(s), returning response records.
-
-        If pagination is detected, pages will be recursed automatically.
-
-        Args:
-            context: Stream partition or context dictionary.
-
-        Yields
-        ------
-            An item for every record in the response.
-
-        """
-        paginator = self.get_new_paginator()
-
-        decorated_request = self.request_decorator(self._request)
-
-        with metrics.http_request_counter(self.name, self.path) as request_counter:
-            request_counter.context = context
-
-            while not paginator.finished:
-                prepared_request = self.prepare_request(
-                    context,
-                    next_page_token=paginator.current_value,
-                )
-                resp = decorated_request(prepared_request, context)
-                request_counter.increment()
-                self.update_sync_costs(prepared_request, resp, context)
-
-                yield from self.parse_response(resp, context)
-
-                paginator.advance(resp)
 
     @staticmethod
     def parse_html(html_string: str):

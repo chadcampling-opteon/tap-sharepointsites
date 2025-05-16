@@ -7,18 +7,20 @@ from typing import Any, Dict, Iterable, Optional
 from urllib.parse import parse_qsl
 
 import requests
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-from singer_sdk.authenticators import BearerTokenAuthenticator
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.pagination import BaseHATEOASPaginator
-from singer_sdk.streams import RESTStream
+from singer_sdk.streams.rest import RESTStream
+
+from tap_sharepointsites.auth import GraphAuthenticator
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
-LOGGER = logging.getLogger("Some logger")
-
 
 class GraphHATEOASPaginator(BaseHATEOASPaginator):
     """Basic paginator."""
+
+    def __init__(self):
+        """Initialize the paginator."""
+        super().__init__()
 
     def get_next_url(self, response):
         """Return the URL for next page."""
@@ -27,22 +29,19 @@ class GraphHATEOASPaginator(BaseHATEOASPaginator):
 
 class sharepointsitesStream(RESTStream):
     """sharepointsites stream class."""
-
-    # OR use a dynamic url_base:
+    
+    def __init__(self, **kwargs):
+        """Initialize stream class."""
+        self._authenticator: Optional[GraphAuthenticator] = None
+        super().__init__(**kwargs)
 
     @property
-    def authenticator(self) -> BearerTokenAuthenticator:
+    def authenticator(self) -> GraphAuthenticator:
         """Return a new authenticator object."""
-        
-        ad_scope = "https://graph.microsoft.com/.default"
-        if self.config.get("client_id"):
-            creds = ManagedIdentityCredential(client_id=self.config["client_id"])
-            token = creds.get_token(ad_scope)
-        else:
-            creds = DefaultAzureCredential()
-            token = creds.get_token(ad_scope)
-
-        return BearerTokenAuthenticator.create_for_stream(self, token=token.token)
+        if self._authenticator is None:
+            self._authenticator = GraphAuthenticator.create_for_stream(self)
+            
+        return self._authenticator
 
     @property
     def http_headers(self) -> dict:
