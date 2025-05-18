@@ -4,6 +4,7 @@ import logging
 from datetime import datetime, timezone
 
 import typing as t
+from typing import Optional
 
 import requests
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
@@ -31,9 +32,9 @@ class GraphAuthenticator(APIAuthenticatorBase, metaclass=SingletonMeta):
         super().__init__(stream=stream)
 
         # Initialize internal tracking attributes
-        self.access_token: str | None = None
-        self.last_refreshed: datetime.datetime | None = None
-        self.expires_in: int | None = None
+        self.access_token: Optional[str] = None
+        self.last_refreshed: Optional[datetime] = None
+        self.expires_in: Optional[int] = None
 
     def authenticate_request(
         self,
@@ -55,7 +56,7 @@ class GraphAuthenticator(APIAuthenticatorBase, metaclass=SingletonMeta):
 
 
     @property
-    def client_id(self) -> str | None:
+    def client_id(self) -> Optional[str]:
         """Get client ID string to be used in authentication.
 
         Returns:
