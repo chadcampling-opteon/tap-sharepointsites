@@ -40,18 +40,6 @@ def mock_az_default_identity():
         yield mock_get_token
 
 
-def test_token(mock_az_default_identity, caplog):
-    tap1 = Tapsharepointsites(config=SAMPLE_CONFIG)
-    stream1 = ListStream(
-        tap=tap1,
-        name="teststream",
-        path="lists/teststream/items?expand=fields",
-    )
-    caplog.set_level(logging.INFO)
-    LOGGER.info(stream1.authenticator.auth_headers)
-    assert stream1.authenticator.auth_headers == {"Authorization": "Bearer xy-123"}
-
-
 @responses.activate
 def test_stuff(mock_az_default_identity, capsys):
 

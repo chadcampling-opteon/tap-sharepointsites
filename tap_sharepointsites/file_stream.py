@@ -121,7 +121,7 @@ class FilesStream(sharepointsitesStream):
                     row.update(
                         {
                             "_sdc_source_file": record["name"],
-                            "_sdc_row_num": str(i),
+                            "_sdc_row_num": i,
                             "_sdc_loaded_at": str(datetime.now(timezone.utc)),
                             "lastModifiedDateTime": record["lastModifiedDateTime"],
                         }
@@ -193,18 +193,3 @@ class FilesStream(sharepointsitesStream):
             return file.text
         else:
             return file.content
-
-    def get_properties(self, fieldnames) -> dict:
-        """Get a list of properties for a *SV file, to be used in creating a schema."""
-        properties = {}
-
-        if fieldnames is None:
-            msg = (
-                "Column names could not be read because they don't exist. Try "
-                "manually specifying them using 'delimited_override_headers'."
-            )
-            raise RuntimeError(msg)
-        for field in fieldnames:
-            properties.update({field: {"type": ["null", "string"]}})
-
-        return properties

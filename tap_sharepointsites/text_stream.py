@@ -76,11 +76,11 @@ class TextStream(sharepointsitesStream):
 
             base_url = data.get("@odata.nextLink")
 
-    def parse_response(self, response: requests.Response, context) -> t.Iterable[dict]:
+    def parse_response(self, response: requests.Response) -> t.Iterable[dict]:
         """Parse the response and return an iterator of result records."""
         resp_values = response.json()["value"]
         files_since = (
-            self.get_starting_replication_key_value(context) or datetime.fromisoformat("1900-01-01T00:00:00Z")
+            self.get_starting_replication_key_value(self.context) or datetime.fromisoformat("1900-01-01T00:00:00Z")
         )
 
         for record in resp_values:
@@ -163,18 +163,3 @@ class TextStream(sharepointsitesStream):
             return file.text
         else:
             return file.content
-
-    def get_properties(self, fieldnames) -> dict:
-        """Get a list of properties for a *SV file, to be used in creating a schema."""
-        properties = {}
-
-        if fieldnames is None:
-            msg = (
-                "Column names could not be read because they don't exist. Try "
-                "manually specifying them using 'delimited_override_headers'."
-            )
-            raise RuntimeError(msg)
-        for field in fieldnames:
-            properties.update({field: {"type": ["null", "string"]}})
-
-        return properties
