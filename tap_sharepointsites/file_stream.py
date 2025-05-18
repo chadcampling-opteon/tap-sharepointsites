@@ -7,8 +7,7 @@ import typing as t
 from functools import cached_property
 
 import requests
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-from singer_sdk import metrics
+from singer_sdk import typing as th
 
 from tap_sharepointsites.client import sharepointsitesStream
 from tap_sharepointsites.file_handlers.csv_handler import CSVHandler
@@ -20,7 +19,7 @@ class FilesStream(sharepointsitesStream):
     """Define custom stream."""
 
     records_jsonpath = "$.value[*]"
-    # replication_key = "lastModifiedDateTime" ## This is not a good replication key, MS Graph API does not always update it, run a full refresh every time
+    replication_key = "lastModifiedDateTime"
     primary_keys = ["_sdc_source_file", "_sdc_row_num"]
 
     # schema_filepath = SCHEMAS_DIR / "files.json"
@@ -84,14 +83,14 @@ class FilesStream(sharepointsitesStream):
         """Parse the response and return an iterator of result records."""
         resp_values = response.json()["value"]
         files_since = (
-            self.get_starting_timestamp(self.context) or "1900-01-01T00:00:00Z"
+            self.get_starting_timestamp(self.context) or datetime.fromisoformat("1900-01-01T00:00:00Z")
         )
 
         for record in resp_values:
             if (
                 "file" in record.keys()
                 and re.match(self.file_config["file_pattern"], record["name"])
-                and record["lastModifiedDateTime"] > files_since
+                and datetime.fromisoformat(record["lastModifiedDateTime"]) > files_since
             ):
 
                 if self.file_config["file_type"] == "csv":
@@ -155,24 +154,22 @@ class FilesStream(sharepointsitesStream):
                         file, sheet_name, min_row, max_row, min_col, max_col
                     )
 
-                properties = {}
+                properties = th.PropertiesList()
 
                 fieldnames = [name for name in dr.fieldnames]
 
                 if self.file_config.get("clean_colnames", True):
                     fieldnames = [snakecase(name) for name in fieldnames]
 
-                extra_cols = [
-                    "_sdc_source_file",
-                    "_sdc_row_num",
-                    "_sdc_loaded_at",
-                    "lastModifiedDateTime",
-                ]
+                for field in fieldnames:
+                    properties.append(th.Property(field, th.StringType(nullable=True)))
+                
+                properties.append(th.Property("_sdc_source_file", th.StringType)),
+                properties.append(th.Property("_sdc_row_num", th.IntegerType)),
+                properties.append(th.Property("_sdc_loaded_at", th.DateTimeType)),
+                properties.append(th.Property("lastModifiedDateTime", th.DateTimeType)),
 
-                for field in fieldnames + extra_cols:
-                    properties.update({field: {"type": ["null", "string"]}})
-
-                return {"properties": properties}
+                return properties.to_dict()
 
         else:
             raise Exception("There is no spoon. Nor files, for that matter.")

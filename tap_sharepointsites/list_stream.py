@@ -33,10 +33,10 @@ class ListStream(sharepointsitesStream):
 
     schema = PropertiesList(
         Property("@odata.etag", StringType),
-        Property("createdDateTime", StringType),
+        Property("createdDateTime", DateTimeType),
         Property("eTag", StringType),
         Property("id", StringType),
-        Property("lastModifiedDateTime", StringType),
+        Property("lastModifiedDateTime", DateTimeType),
         Property("webUrl", StringType),
         Property("createdBy", ObjectType()),
         Property("lastModifiedBy", ObjectType()),

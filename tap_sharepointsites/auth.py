@@ -2,18 +2,17 @@
 
 import logging
 from datetime import datetime, timezone
-from pathlib import Path
 
 import typing as t
 
 import requests
 from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-from singer_sdk.authenticators import APIAuthenticatorBase
+from singer_sdk.authenticators import APIAuthenticatorBase, SingletonMeta
 from singer_sdk.streams.rest import _HTTPStream
 
 logging.getLogger('azure.core.pipeline.policies.http_logging_policy').setLevel(logging.WARNING)
 
-class GraphAuthenticator(APIAuthenticatorBase):
+class GraphAuthenticator(APIAuthenticatorBase, metaclass=SingletonMeta):
     """API Authenticator for OAuth 2.0 flows."""
 
     def __init__(

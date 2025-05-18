@@ -1,6 +1,6 @@
 """Stream type classes for tap-sharepointsites."""
 
-import datetime
+from datetime import datetime, timezone
 import os
 import re
 import tempfile
@@ -8,8 +8,6 @@ import typing as t
 
 import requests
 import textract
-from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
-from singer_sdk import metrics
 from singer_sdk import typing as th
 
 from tap_sharepointsites.client import sharepointsitesStream
@@ -82,14 +80,14 @@ class TextStream(sharepointsitesStream):
         """Parse the response and return an iterator of result records."""
         resp_values = response.json()["value"]
         files_since = (
-            self.get_starting_replication_key_value(context) or "1900-01-01T00:00:00Z"
+            self.get_starting_replication_key_value(context) or datetime.fromisoformat("1900-01-01T00:00:00Z")
         )
 
         for record in resp_values:
             if (
                 "file" in record.keys()
                 and re.match(self.text_config["file_pattern"], record["name"])
-                and record["lastModifiedDateTime"] > files_since
+                and datetime.fromisoformat(record["lastModifiedDateTime"]) > files_since
             ):
 
                 file = self.get_file_for_row(record, text=False)
@@ -104,7 +102,7 @@ class TextStream(sharepointsitesStream):
                     "content": text.decode("utf-8"),
                     "metadata": {"source": record["name"]},
                     "_sdc_source_file": record["name"],
-                    "_sdc_loaded_at": str(datetime.datetime.utcnow()),
+                    "_sdc_loaded_at": str(datetime.now(timezone.utc)),
                     "lastModifiedDateTime": record["lastModifiedDateTime"],
                 }
 
@@ -136,12 +134,12 @@ class TextStream(sharepointsitesStream):
         ),
         th.Property(
             "_sdc_loaded_at",
-            th.StringType,
+            th.DateTimeType,
             description="Loaded at timestamp",
         ),
         th.Property(
             "lastModifiedDateTime",
-            th.StringType,
+            th.DateTimeType,
             description="The last time the file was updated",
         ),
     ).to_dict()
