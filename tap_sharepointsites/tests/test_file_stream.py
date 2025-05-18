@@ -8,6 +8,7 @@ import responses
 from responses import GET
 
 from tap_sharepointsites.tap import Tapsharepointsites
+from datetime import datetime, timedelta, timezone
 
 LOGGER = logging.getLogger("Some logger")
 
@@ -78,7 +79,10 @@ def mock_az_default_identity():
     with mock.patch(
         "azure.identity.DefaultAzureCredential.get_token",
     ) as mock_get_token:
-        mock_get_token.return_value = mock.Mock(token="xy-123")
+        mock_get_token.return_value = mock.Mock(
+            token="xy-123",
+            expires_on=int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
+        )
         yield mock_get_token
 
 

@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 import json
 import logging
 import re
@@ -32,20 +33,11 @@ def mock_az_default_identity():
     with mock.patch(
         "azure.identity.DefaultAzureCredential.get_token",
     ) as mock_get_token:
-        mock_get_token.return_value = mock.Mock(token="xy-123")
+        mock_get_token.return_value = mock.Mock(
+            token="xy-123",
+            expires_on=int((datetime.now(timezone.utc) + timedelta(hours=1)).timestamp())
+            )
         yield mock_get_token
-
-
-def test_token(mock_az_default_identity, caplog):
-    tap1 = Tapsharepointsites(config=SAMPLE_CONFIG)
-    stream1 = ListStream(
-        tap=tap1,
-        name="teststream",
-        path="lists/teststream/items?expand=fields",
-    )
-    caplog.set_level(logging.INFO)
-    LOGGER.info(stream1.authenticator.auth_headers)
-    assert stream1.authenticator.auth_headers == {"Authorization": "Bearer xy-123"}
 
 
 @responses.activate

@@ -10,9 +10,9 @@ keywords = [
 license = "Apache 2.0"
 
 [tool.poetry.dependencies]
-python = "<3.12,>=3.7.1"
+python = "<3.13,>=3.9"
 requests = "^2.25.1"
-singer-sdk = "^0.29.0"
+singer-sdk = {extras = ["testing"], version = "^0.46.1"}
 azure-identity = "^1.11"
 openpyxl = "^3.0.7"
 textract-py3 = "^2.1.0"
@@ -20,8 +20,8 @@ xlrd = "<2.0.0" # 2.0.0 doesn't support xlsx
 selectolax = "0.3.17"
 
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2.5"
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.1"
 tox = "^3.14.3"
 flake8 = "^3.9.2"
 black = "^22.3.0"
